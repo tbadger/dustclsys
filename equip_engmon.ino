@@ -67,6 +67,8 @@ void loop()
   double Irms2 = tool2.calcIrms(1480);  // Calculate Irms only
   double Irms3 = tool3.calcIrms(1480);  // Calculate Irms only
   double Irms4 = tool4.calcIrms(1480);  // Calculate Irms only
+
+  startupCounter++;
  
   lcd.clear();
   lcd.setCursor(0,3);
@@ -91,6 +93,9 @@ void loop()
   lcd.print("MT: ");
   lcd.setCursor (14,1);
   lcd.print(Irms4);
+
+  if (startupCounter > 10)
+  {
   
     if (Irms1 > 40) {
       digitalWrite(blastGate1Pin,LOW); // enable on
@@ -141,6 +146,12 @@ void loop()
       digitalWrite(blastGate4Pin,HIGH); // enable off
       digitalWrite(blastGate5Pin,HIGH); // enable off
      }
+  
+  }
+  else
+  {
+    delay(500);
+  }
 }
 
 void dustOn()
