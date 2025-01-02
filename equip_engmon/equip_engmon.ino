@@ -58,13 +58,14 @@ bool manualGateStates[NUM_TOOLS] = {false};
 
 // Add status display helper function
 void updateGateStatusDisplay() {
-  clearRow(1);
-  clearRow(2);
-  lcd.setCursor(0, 1);
-  lcd.print("Gates:");
+  // clearRow(1);
+  // clearRow(2);
+  // lcd.setCursor(0, 1);
+  // lcd.print("Gates:");  // hide this line for IRMS on lines 1&2
   
-  // Show gate states on line 2
+  // Show gate states on line 3
   lcd.setCursor(0, 2);
+  lcd.print("BG - ");
   for(int i = 0; i < NUM_TOOLS; i++) {
     lcd.print(i + 1);
     lcd.print(":");
@@ -140,6 +141,11 @@ void loop()
       if (currentState != MANUAL_CONTROL) {
         currentState = MANUAL_CONTROL;
         dustOn();
+        // Force immediate display update when entering manual mode
+        clearRow(3);
+        lcd.setCursor(0,3);
+        lcd.print("Manual Control - DC ON");
+        updateGateStatusDisplay();
       }
       anyButtonPressed = true;
       
@@ -205,25 +211,22 @@ void loop()
   // Periodic display updates in manual mode
   if (currentState == MANUAL_CONTROL && 
       (currentMillis - lastDisplayUpdate) >= DISPLAY_INTERVAL) {
+    clearRow(3);
+    lcd.setCursor(0,3);
+    lcd.print("Manual Control - DC ON");
     updateGateStatusDisplay();
     lastDisplayUpdate = currentMillis;
-    
-    // Periodic status dump to serial
-    Serial.println("\n=== System Status ===");
-    Serial.println("Mode: Manual Control");
-    Serial.println("Gate States:");
-    for(int i = 0; i < NUM_TOOLS; i++) {
-      Serial.print("  Gate ");
-      Serial.print(i + 1);
-      Serial.print(": ");
-      Serial.println(manualGateStates[i] ? "OPEN" : "CLOSED");
-    }
-    Serial.println("==================\n");
   }
 
-  // Read current values (removed debug prints)
+  // Read current values
   for(int i = 0; i < NUM_TOOLS; i++) {
     toolCurrents[i] = tools[i].calcIrms(1480);
+  }
+
+  // Update display periodically
+  if (currentMillis - lastDisplayUpdate >= DISPLAY_INTERVAL) {
+    updateDisplay();
+    lastDisplayUpdate = currentMillis;
   }
 
   // Handle TOOL_DEACTIVATING state immediately after current readings
@@ -356,14 +359,12 @@ void loop()
           Serial.println(manualGateStates[i] ? "OPEN" : "CLOSED");
         }
         Serial.println("-------------------------");
-      }
-      
-      clearRow(3);
-      lcd.setCursor(0,3);
-      lcd.print("Manual Control - DC ON");
-      
-      if (!anyButtonPressed) {
-        return;
+        
+        // Update display status
+        clearRow(3);
+        lcd.setCursor(0,3);
+        lcd.print("Manual Control - DC ON");
+        updateGateStatusDisplay();  // Make sure gate status is updated regularly
       }
       break;
       
@@ -379,24 +380,14 @@ void loop()
   }
 }
 
-// Add new function to handle display updates
-void updateDisplay(double Irms1, double Irms2, double Irms3, double Irms4) {
+void updateDisplay() {
+  // Update tool current readings
   for(int i = 0; i < NUM_TOOLS; i++) {
     lcd.setCursor((i % 2) * 10, i / 2);
     lcd.print("T");
     lcd.print(i + 1);
     lcd.print(" ");
-    lcd.print(toolCurrents[i]);
-  }
-
-  if (currentState == MONITORING) {
-    clearRow(3);
-    lcd.setCursor(0,3);
-    lcd.print("Monitoring - DC OFF");
-  }
-
-  if (currentState == TOOL_RUNNING) {
-
+    lcd.print(toolCurrents[i], 1); // Display with 1 decimal place
   }
 }
 
