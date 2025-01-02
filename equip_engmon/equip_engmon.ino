@@ -1,5 +1,5 @@
 // Dust Collection System for Shop
-// Current File in Development 01/01/2025
+// Released Version 5.0 01/02/2025
 //
 // Code developed with help from: Cursor AI
 
@@ -89,7 +89,7 @@ void setup()
   lcd.setCursor(0,0);           // set cursor to column 0, row 0 (the first row)
   lcd.print("ShopTool Monitor");
   lcd.setCursor(0,1);
-  lcd.print("DC v4.5");
+  lcd.print("DC v5.0");
   delay(4000);  //Consider removing this if splash screen isn't needed
   lcd.clear();
 
