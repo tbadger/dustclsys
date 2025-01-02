@@ -65,7 +65,7 @@ void updateGateStatusDisplay() {
   
   // Show gate states on line 3
   lcd.setCursor(0, 2);
-  lcd.print("BG - ");
+  lcd.print("BG ");
   for(int i = 0; i < NUM_TOOLS; i++) {
     lcd.print(i + 1);
     lcd.print(":");
@@ -144,7 +144,7 @@ void loop()
         // Force immediate display update when entering manual mode
         clearRow(3);
         lcd.setCursor(0,3);
-        lcd.print("Manual Control - DC ON");
+        lcd.print("Manual - DC ON");
         updateGateStatusDisplay();
       }
       anyButtonPressed = true;
@@ -213,7 +213,7 @@ void loop()
       (currentMillis - lastDisplayUpdate) >= DISPLAY_INTERVAL) {
     clearRow(3);
     lcd.setCursor(0,3);
-    lcd.print("Manual Control - DC ON");
+    lcd.print("Manual - DC ON");
     updateGateStatusDisplay();
     lastDisplayUpdate = currentMillis;
   }
@@ -363,7 +363,7 @@ void loop()
         // Update display status
         clearRow(3);
         lcd.setCursor(0,3);
-        lcd.print("Manual Control - DC ON");
+        lcd.print("Manual - DC ON");
         updateGateStatusDisplay();  // Make sure gate status is updated regularly
       }
       break;
