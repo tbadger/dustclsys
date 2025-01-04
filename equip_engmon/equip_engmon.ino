@@ -56,6 +56,48 @@ bool buttonStates[NUM_TOOLS] = {false};
 bool lastButtonStates[NUM_TOOLS] = {false};
 bool manualGateStates[NUM_TOOLS] = {false};
 
+<<<<<<< Updated upstream
+=======
+// Button handling constants and variables
+const int BUTTON_PINS[] = {19, 18, 2, 3};  // Changed to interrupt-capable pins
+volatile bool buttonInterrupt[NUM_TOOLS] = {false};
+unsigned long lastInterruptTime[NUM_TOOLS] = {0};
+const unsigned long DEBOUNCE_TIME = 200;  // 200ms debounce
+
+void buttonISR0() { 
+    if (millis() - lastInterruptTime[0] > DEBOUNCE_TIME) { 
+        buttonInterrupt[0] = true; 
+        lastInterruptTime[0] = millis();
+    } 
+}
+void buttonISR1() { 
+    if (millis() - lastInterruptTime[1] > DEBOUNCE_TIME) { 
+        buttonInterrupt[1] = true; 
+        lastInterruptTime[1] = millis();
+    } 
+}
+void buttonISR2() { 
+    if (millis() - lastInterruptTime[2] > DEBOUNCE_TIME) { 
+        buttonInterrupt[2] = true; 
+        lastInterruptTime[2] = millis();
+    } 
+}
+void buttonISR3() { 
+    if (millis() - lastInterruptTime[3] > DEBOUNCE_TIME) { 
+        buttonInterrupt[3] = true; 
+        lastInterruptTime[3] = millis();
+    } 
+}
+
+// Initialize buttons with these pins
+ezButton buttons[NUM_TOOLS] = {
+    ezButton(BUTTON_PINS[0]),  // Tool 1
+    ezButton(BUTTON_PINS[1]),  // Tool 2
+    ezButton(BUTTON_PINS[2]),  // Tool 3
+    ezButton(BUTTON_PINS[3])   // Tool 4
+};
+
+>>>>>>> Stashed changes
 // Add status display helper function
 void updateGateStatusDisplay() {
   // clearRow(1);
