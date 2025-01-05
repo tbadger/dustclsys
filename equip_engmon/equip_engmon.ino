@@ -1,5 +1,5 @@
 // Dust Collection System for Shop
-// Released Version 5.0 01/02/2025
+// Released Version 5.6 01/04/2025
 
 #include <LiquidCrystal_I2C.h>
 #include "EmonLib.h"
