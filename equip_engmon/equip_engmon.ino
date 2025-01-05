@@ -1,5 +1,5 @@
 // Dust Collection System for Shop
-// Released Version 5.0 01/02/2025
+// Released Version 5.7 01/04/2025
 
 #include <LiquidCrystal_I2C.h>
 #include "EmonLib.h"
@@ -50,32 +50,32 @@ void buttonISR0() {
     if (millis() - lastInterruptTime[0] > DEBOUNCE_TIME && !buttonInterrupt[0]) { 
         buttonInterrupt[0] = true; 
         lastInterruptTime[0] = millis();
-        Serial.print("ISR0 triggered - Pin ");
-        Serial.println(BUTTON_PINS[0]);
+        // Serial.print("ISR0 triggered - Pin ");
+        // Serial.println(BUTTON_PINS[0]);
     } 
 }
 void buttonISR1() { 
     if (millis() - lastInterruptTime[1] > DEBOUNCE_TIME && !buttonInterrupt[1]) { 
         buttonInterrupt[1] = true; 
         lastInterruptTime[1] = millis();
-        Serial.print("ISR1 triggered - Pin ");
-        Serial.println(BUTTON_PINS[1]);
+        // Serial.print("ISR1 triggered - Pin ");
+        // Serial.println(BUTTON_PINS[1]);
     } 
 }
 void buttonISR2() { 
     if (millis() - lastInterruptTime[2] > DEBOUNCE_TIME && !buttonInterrupt[2]) { 
         buttonInterrupt[2] = true; 
         lastInterruptTime[2] = millis();
-        Serial.print("ISR2 triggered - Pin ");
-        Serial.println(BUTTON_PINS[2]);
+        // Serial.print("ISR2 triggered - Pin ");
+        // Serial.println(BUTTON_PINS[2]);
     } 
 }
 void buttonISR3() { 
     if (millis() - lastInterruptTime[3] > DEBOUNCE_TIME && !buttonInterrupt[3]) { 
         buttonInterrupt[3] = true; 
         lastInterruptTime[3] = millis();
-        Serial.print("ISR3 triggered - Pin ");
-        Serial.println(BUTTON_PINS[3]);
+        // Serial.print("ISR3 triggered - Pin ");
+        // Serial.println(BUTTON_PINS[3]);
     } 
 }
 
@@ -110,12 +110,12 @@ void setup() {
         // Add some delay between pin configurations
         delay(50);
         
-        Serial.print("Button ");
-        Serial.print(i + 1);
-        Serial.print(" (Pin ");
-        Serial.print(BUTTON_PINS[i]);
-        Serial.print(") state: ");
-        Serial.println(digitalRead(BUTTON_PINS[i]));
+        // Serial.print("Button "); // Uncomment to see button pin states
+        // Serial.print(i + 1);
+        // Serial.print(" (Pin ");
+        // Serial.print(BUTTON_PINS[i]);
+        // Serial.print(") state: ");
+        // Serial.println(digitalRead(BUTTON_PINS[i]));
     }
     
     // Clear any pending interrupts
@@ -135,7 +135,7 @@ void setup() {
     delay(50);
     attachInterrupt(digitalPinToInterrupt(BUTTON_PINS[3]), buttonISR3, FALLING);
 
-    Serial.println("Setup complete - monitoring buttons");
+    // Serial.println("Setup complete - monitoring buttons"); 
 }
 
 void loop() {
@@ -187,7 +187,7 @@ void displayStartupScreen() {
     lcd.setCursor(0,0);
     lcd.print("ShopTool Monitor");
     lcd.setCursor(0,1);
-    lcd.print("DC v5.6");
+    lcd.print("DC v5.7");
     delay(2000);
     lcd.clear();
 }
@@ -224,12 +224,15 @@ void checkButtonInterrupts() {
         if (buttonInterrupt[i]) {
             // Double-check the pin state
             if (digitalRead(BUTTON_PINS[i]) == LOW) {  // Verify button is actually pressed
-                Serial.print("Confirmed button press on pin ");
-                Serial.println(BUTTON_PINS[i]);
                 handleButtonPress(i);
             } else {
-                Serial.print("False trigger on pin ");
-                Serial.println(BUTTON_PINS[i]);
+                // Add LCD notification for false trigger
+                lcd.setCursor(0, 3);
+                lcd.print("False trigger: T");
+                lcd.print(i + 1);
+                lcd.print("    ");
+                // Serial.print("False trigger on pin ");
+                // Serial.println(BUTTON_PINS[i]);
             }
             buttonInterrupt[i] = false;
         }
