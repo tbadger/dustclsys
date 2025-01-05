@@ -1,8 +1,10 @@
 // Dust Collection System for Shop
-// Released Version 5.7 01/04/2025
+// Released Version 5.8 01/05/2025
 
 #include <LiquidCrystal_I2C.h>
 #include "EmonLib.h"
+
+#include "IRremote.h"
 
 // Hardware Configuration
 LiquidCrystal_I2C lcd(0x27,20,4);
@@ -47,37 +49,81 @@ double toolCurrents[NUM_TOOLS];
 
 // Interrupt Service Routines
 void buttonISR0() { 
-    if (millis() - lastInterruptTime[0] > DEBOUNCE_TIME && !buttonInterrupt[0]) { 
+    unsigned long currentTime = millis();
+    if ((currentTime - lastInterruptTime[0] > DEBOUNCE_TIME) && 
+        (digitalRead(BUTTON_PINS[0]) == LOW) && 
+        !buttonInterrupt[0]) { 
         buttonInterrupt[0] = true; 
-        lastInterruptTime[0] = millis();
-        // Serial.print("ISR0 triggered - Pin ");
-        // Serial.println(BUTTON_PINS[0]);
+        lastInterruptTime[0] = currentTime;
     } 
 }
 void buttonISR1() { 
-    if (millis() - lastInterruptTime[1] > DEBOUNCE_TIME && !buttonInterrupt[1]) { 
+    unsigned long currentTime = millis();
+    if ((currentTime - lastInterruptTime[1] > DEBOUNCE_TIME) && 
+        (digitalRead(BUTTON_PINS[1]) == LOW) && 
+        !buttonInterrupt[1]) { 
         buttonInterrupt[1] = true; 
-        lastInterruptTime[1] = millis();
-        // Serial.print("ISR1 triggered - Pin ");
-        // Serial.println(BUTTON_PINS[1]);
+        lastInterruptTime[1] = currentTime;
     } 
 }
 void buttonISR2() { 
-    if (millis() - lastInterruptTime[2] > DEBOUNCE_TIME && !buttonInterrupt[2]) { 
+    unsigned long currentTime = millis();
+    if ((currentTime - lastInterruptTime[2] > DEBOUNCE_TIME) && 
+        (digitalRead(BUTTON_PINS[2]) == LOW) && 
+        !buttonInterrupt[2]) { 
         buttonInterrupt[2] = true; 
-        lastInterruptTime[2] = millis();
-        // Serial.print("ISR2 triggered - Pin ");
-        // Serial.println(BUTTON_PINS[2]);
+        lastInterruptTime[2] = currentTime;
     } 
 }
 void buttonISR3() { 
-    if (millis() - lastInterruptTime[3] > DEBOUNCE_TIME && !buttonInterrupt[3]) { 
+    unsigned long currentTime = millis();
+    if ((currentTime - lastInterruptTime[3] > DEBOUNCE_TIME) && 
+        (digitalRead(BUTTON_PINS[3]) == LOW) && 
+        !buttonInterrupt[3]) { 
         buttonInterrupt[3] = true; 
-        lastInterruptTime[3] = millis();
-        // Serial.print("ISR3 triggered - Pin ");
-        // Serial.println(BUTTON_PINS[3]);
+        lastInterruptTime[3] = currentTime;
     } 
 }
+
+/* -- IR Receiver -- */
+int receiver = 7; // Signal Pin of IR receiver to Arduino Digital Pin 11
+
+/*-----( Declare objects )-----*/
+IRrecv irrecv(receiver);     // create instance of 'irrecv'
+//vairable uses to store the last decodedRawData
+uint32_t last_decodedRawData = 0;
+/*-----( Function )-----*/
+void translateIR() {
+  // Check if it is a repeat IR code 
+  if (irrecv.decodedIRData.flags) {
+    irrecv.decodedIRData.decodedRawData = last_decodedRawData;
+    Serial.println("REPEAT!");
+  } else {
+    Serial.print("IR code:0x");
+    Serial.println(irrecv.decodedIRData.decodedRawData, HEX);
+  }
+
+  switch (irrecv.decodedIRData.decodedRawData) {
+    case 0xF30CFF00: // Button "1"
+      handleButtonPress(0);  // Control blast gate 1
+      break;
+    case 0xE718FF00: // Button "2"
+      handleButtonPress(1);  // Control blast gate 2
+      break;
+    case 0xA15EFF00: // Button "3"
+      handleButtonPress(2);  // Control blast gate 3
+      break;
+    case 0xF708FF00: // Button "4"
+      handleButtonPress(3);  // Control blast gate 4
+      break;
+    default:
+      Serial.println(" other button   ");
+  }
+  
+  last_decodedRawData = irrecv.decodedIRData.decodedRawData;
+  delay(500);
+}
+
 
 void setup() {
     Serial.begin(9600);
@@ -136,6 +182,12 @@ void setup() {
     attachInterrupt(digitalPinToInterrupt(BUTTON_PINS[3]), buttonISR3, FALLING);
 
     // Serial.println("Setup complete - monitoring buttons"); 
+
+    /* -- IR Setup --*/
+    Serial.println("IR Receiver Button Decode");
+    irrecv.enableIRIn(); // Start the receiver
+
+    /* End IR Setup --*/
 }
 
 void loop() {
@@ -178,6 +230,13 @@ void loop() {
         case MANUAL_CONTROL:
             handleManualControlState(currentMillis);
             break;
+    }
+
+    /* -- IR Code loop to translate IR Codes -- */
+    if (irrecv.decode()) // have we received an IR signal?
+    {
+      translateIR();
+      irrecv.resume(); // receive the next value
     }
 }
 
